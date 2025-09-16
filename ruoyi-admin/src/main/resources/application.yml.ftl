@@ -20,17 +20,23 @@ server:
       # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
       worker: 256
 
+<#if featureFlags.captcha.enabled>
 captcha:
   # 是否启用验证码校验
-  enable: true
+  enable: ${featureFlags.captcha.enabled?c}
   # 验证码类型 math 数组计算 char 字符验证
-  type: MATH
+  type: ${featureFlags.captcha.type!"MATH"}
   # line 线段干扰 circle 圆圈干扰 shear 扭曲干扰
-  category: CIRCLE
+  category: ${featureFlags.captcha.category!"CIRCLE"}
   # 数字验证码位数
   numberLength: 1
   # 字符验证码长度
   charLength: 4
+<#else>
+captcha:
+  # 验证码功能已禁用
+  enable: false
+</#if>
 
 # 日志配置
 logging:
@@ -110,23 +116,25 @@ security:
     - /error
     - /*/api-docs
     - /*/api-docs/**
+<#if featureFlags.workflow.enabled>
     - /warm-flow-ui/config
+</#if>
 
+<#if featureFlags.tenant.enabled>
 # 多租户配置
 tenant:
   # 是否开启
-  enable: true
+  enable: ${featureFlags.tenant.enabled?c}
   # 排除表
   excludes:
-    - sys_menu
-    - sys_tenant
-    - sys_tenant_package
-    - sys_role_dept
-    - sys_role_menu
-    - sys_user_post
-    - sys_user_role
-    - sys_client
-    - sys_oss_config
+<#list featureFlags.tenant.excludes as exclude>
+    - ${exclude}
+</#list>
+<#else>
+# 多租户功能已禁用
+tenant:
+  enable: false
+</#if>
 
 # MyBatisPlus配置
 # https://baomidou.com/config/
@@ -160,33 +168,40 @@ mybatis-encryptor:
   publicKey:
   privateKey:
 
+<#if featureFlags.apiDecrypt.enabled>
 # api接口加密
 api-decrypt:
   # 是否开启全局接口加密
-  enabled: true
+  enabled: ${featureFlags.apiDecrypt.enabled?c}
   # AES 加密头标识
-  headerFlag: encrypt-key
+  headerFlag: ${featureFlags.apiDecrypt.headerFlag!"encrypt-key"}
   # 响应加密公钥 非对称算法的公私钥 如：SM2，RSA 使用者请自行更换
   # 对应前端解密私钥 MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAmc3CuPiGL/LcIIm7zryCEIbl1SPzBkr75E2VMtxegyZ1lYRD+7TZGAPkvIsBcaMs6Nsy0L78n2qh+lIZMpLH8wIDAQABAkEAk82Mhz0tlv6IVCyIcw/s3f0E+WLmtPFyR9/WtV3Y5aaejUkU60JpX4m5xNR2VaqOLTZAYjW8Wy0aXr3zYIhhQQIhAMfqR9oFdYw1J9SsNc+CrhugAvKTi0+BF6VoL6psWhvbAiEAxPPNTmrkmrXwdm/pQQu3UOQmc2vCZ5tiKpW10CgJi8kCIFGkL6utxw93Ncj4exE/gPLvKcT+1Emnoox+O9kRXss5AiAMtYLJDaLEzPrAWcZeeSgSIzbL+ecokmFKSDDcRske6QIgSMkHedwND1olF8vlKsJUGK3BcdtM8w4Xq7BpSBwsloE=
   publicKey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJnNwrj4hi/y3CCJu868ghCG5dUj8wZK++RNlTLcXoMmdZWEQ/u02RgD5LyLAXGjLOjbMtC+/J9qofpSGTKSx/MCAwEAAQ==
   # 请求解密私钥 非对称算法的公私钥 如：SM2，RSA 使用者请自行更换
   # 对应前端加密公钥 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKoR8mX0rGKLqzcWmOzbfj64K8ZIgOdHnzkXSOVOZbFu/TJhZ7rFAN+eaGkl3C4buccQd/EjEsj9ir7ijT7h96MCAwEAAQ==
   privateKey: MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAqhHyZfSsYourNxaY7Nt+PrgrxkiA50efORdI5U5lsW79MmFnusUA355oaSXcLhu5xxB38SMSyP2KvuKNPuH3owIDAQABAkAfoiLyL+Z4lf4Myxk6xUDgLaWGximj20CUf+5BKKnlrK+Ed8gAkM0HqoTt2UZwA5E2MzS4EI2gjfQhz5X28uqxAiEA3wNFxfrCZlSZHb0gn2zDpWowcSxQAgiCstxGUoOqlW8CIQDDOerGKH5OmCJ4Z21v+F25WaHYPxCFMvwxpcw99EcvDQIgIdhDTIqD2jfYjPTY8Jj3EDGPbH2HHuffvflECt3Ek60CIQCFRlCkHpi7hthhYhovyloRYsM+IS9h/0BzlEAuO0ktMQIgSPT3aFAgJYwKpqRYKlLDVcflZFCKY7u3UP8iWi1Qw0Y=
+<#else>
+# api接口加密功能已禁用
+api-decrypt:
+  enabled: false
+</#if>
 
+<#if featureFlags.springDoc.enabled>
 springdoc:
   api-docs:
     # 是否开启接口文档
-    enabled: true
+    enabled: ${featureFlags.springDoc.enabled?c}
   info:
     # 标题
-    title: '标题：${projectMetadata.projectName}多租户管理系统_接口文档'
+    title: '标题：${featureFlags.springDoc.title!"${projectMetadata.projectName}"}多租户管理系统_接口文档'
     # 描述
-    description: '描述：${projectMetadata.description}'
+    description: '描述：${featureFlags.springDoc.description!"${projectMetadata.description}"}'
     # 版本
     version: '版本号: ${projectMetadata.version}'
     # 作者信息
     contact:
-      name: Lion Li
+      name: ${projectMetadata.author!"Lion Li"}
       email: crazylionli@163.com
       url: https://gitee.com/dromara/RuoYi-Vue-Plus
   components:
@@ -206,26 +221,48 @@ springdoc:
       packages-to-scan: ${projectMetadata.groupId}.system
     - group: 4.代码生成模块
       packages-to-scan: ${projectMetadata.groupId}.generator
+<#if featureFlags.workflow.enabled>
     - group: 5.工作流模块
       packages-to-scan: ${projectMetadata.groupId}.workflow
+</#if>
+<#else>
+# SpringDoc接口文档功能已禁用
+springdoc:
+  api-docs:
+    enabled: false
+</#if>
 
+<#if featureFlags.xss.enabled>
 # 防止XSS攻击
 xss:
   # 过滤开关
-  enabled: true
+  enabled: ${featureFlags.xss.enabled?c}
   # 排除链接（多个用逗号分隔）
   excludeUrls:
-    - /system/notice
+<#list featureFlags.xss.excludeUrls as url>
+    - ${url}
+</#list>
+<#else>
+# XSS防护功能已禁用
+xss:
+  enabled: false
+</#if>
 
+<#if featureFlags.threadPool.enabled>
 # 全局线程池相关配置
 # 如使用JDK21请直接使用虚拟线程 不要开启此配置
 thread-pool:
   # 是否开启线程池
-  enabled: false
+  enabled: ${featureFlags.threadPool.enabled?c}
   # 队列最大长度
-  queueCapacity: 128
+  queueCapacity: ${featureFlags.threadPool.queueCapacity!128}
   # 线程池维护线程所允许的空闲时间
-  keepAliveSeconds: 300
+  keepAliveSeconds: ${featureFlags.threadPool.keepAliveSeconds!300}
+<#else>
+# 全局线程池功能已禁用
+thread-pool:
+  enabled: false
+</#if>
 
 --- # 分布式锁 lock4j 全局配置
 lock4j:
@@ -246,28 +283,41 @@ management:
     logfile:
       external-file: ./logs/sys-console.log
 
+<#if featureFlags.sse.enabled>
 --- # 默认/推荐使用sse推送
 sse:
-  enabled: true
-  path: /resource/sse
+  enabled: ${featureFlags.sse.enabled?c}
+  path: ${featureFlags.sse.path!"/resource/sse"}
+<#else>
+--- # SSE推送功能已禁用
+sse:
+  enabled: false
+</#if>
 
+<#if featureFlags.websocket.enabled>
 --- # websocket
 websocket:
   # 如果关闭 需要和前端开关一起关闭
-  enabled: false
+  enabled: ${featureFlags.websocket.enabled?c}
   # 路径
-  path: /resource/websocket
+  path: ${featureFlags.websocket.path!"/resource/websocket"}
   # 设置访问源地址
-  allowedOrigins: '*'
+  allowedOrigins: '${featureFlags.websocket.allowedOrigins!"*"}'
+<#else>
+--- # WebSocket功能已禁用
+websocket:
+  enabled: false
+</#if>
 
+<#if featureFlags.workflow.enabled>
 --- # warm-flow工作流配置
 warm-flow:
   # 是否开启工作流，默认true
-  enabled: true
+  enabled: ${featureFlags.workflow.enabled?c}
   # 是否开启设计器ui
-  ui: true
+  ui: ${featureFlags.workflow.ui?c}
   # 默认Authorization，如果有多个token，用逗号分隔
-  token-name: ${sa-token.token-name},clientid
+  token-name: ${featureFlags.workflow.tokenName!"${sa-token.token-name},clientid"}
   # 流程状态对应的三元色
   chart-status-color:
     ## 未办理
@@ -276,6 +326,11 @@ warm-flow:
     - 255,205,23
     ## 已办理
     - 157,255,0
+<#else>
+--- # 工作流功能已禁用
+warm-flow:
+  enabled: false
+</#if>
 
 --- # 数据源配置
 spring:

@@ -201,6 +201,11 @@ class ScaffoldingService:
             output_path / "ruoyi-modules" / "ruoyi-generator" / "src" / "main" / "resources" / "generator.yml.ftl"
         ]
         
+        # 查找所有 .ftl 文件
+        for ftl_file in output_path.rglob("*.ftl"):
+            if ftl_file not in templates:
+                templates.append(ftl_file)
+        
         for template_path in templates:
             if template_path.exists():
                 self._process_single_template(template_path, project_config)
@@ -209,8 +214,8 @@ class ScaffoldingService:
         """处理单个 FTL 模板"""
         content = template_path.read_text(encoding='utf-8')
         
-        # 简单的模板变量替换（实际项目中应使用 FreeMarker 引擎）
-        content = self._replace_template_variables(content, project_config)
+        # 使用增强的 FTL 模板处理器
+        content = self._process_ftl_template(content, project_config)
         
         # 生成目标文件（去掉 .ftl 后缀）
         target_path = template_path.parent / template_path.stem
@@ -224,6 +229,11 @@ class ScaffoldingService:
         
         def replace_variable(match):
             var_expr = match.group(1)
+            
+            # 处理 FreeMarker 的类型转换指令 如 ?c (convert to string)
+            convert_directive = None
+            if '?' in var_expr:
+                var_expr, convert_directive = var_expr.split('?', 1)
             
             # 处理默认值 ${var!"default"}
             if '!"' in var_expr:
@@ -240,6 +250,14 @@ class ScaffoldingService:
             try:
                 for part in parts:
                     current = current[part]
+                
+                # 应用转换指令
+                if convert_directive == 'c':
+                    # 布尔值转换为字符串
+                    if isinstance(current, bool):
+                        return 'true' if current else 'false'
+                    return str(current).lower()
+                
                 return str(current)
             except (KeyError, TypeError):
                 if default_value is not None:
@@ -250,6 +268,104 @@ class ScaffoldingService:
         pattern = r'\$\{([^}]+)\}'
         result = re.sub(pattern, replace_variable, content)
         return result
+    
+    def _process_ftl_template(self, content: str, project_config: Dict) -> str:
+        """处理 FreeMarker 模板内容"""
+        try:
+            # 简化的 FTL 处理器，处理条件语句和变量
+            import re
+            
+            # 处理 <#if> 条件语句
+            def process_if_statements(text):
+                # 匹配 <#if condition>content<#else>alt_content</#if> 或 <#if condition>content</#if>
+                if_pattern = r'<#if\s+([^>]+)>(.*?)(?:<#else>(.*?))?</#if>'
+                
+                def replace_if(match):
+                    condition = match.group(1).strip()
+                    if_content = match.group(2)
+                    else_content = match.group(3) if match.group(3) else ""
+                    
+                    # 评估条件
+                    if self._evaluate_condition(condition, project_config):
+                        return if_content
+                    else:
+                        return else_content
+                
+                return re.sub(if_pattern, replace_if, text, flags=re.DOTALL)
+            
+            # 处理 <#list> 循环语句
+            def process_list_statements(text):
+                # 匹配 <#list items as item>content</#list>
+                list_pattern = r'<#list\s+([^>]+)\s+as\s+(\w+)>(.*?)</#list>'
+                
+                def replace_list(match):
+                    items_path = match.group(1).strip()
+                    item_var = match.group(2).strip()
+                    list_content = match.group(3)
+                    
+                    # 获取列表数据
+                    items = self._get_nested_value(project_config, items_path)
+                    if not isinstance(items, list):
+                        return ""
+                    
+                    result_parts = []
+                    for item in items:
+                        # 替换循环变量
+                        item_content = list_content.replace(f"${{{item_var}}}", str(item))
+                        result_parts.append(item_content)
+                    
+                    return "\n".join(result_parts)
+                
+                return re.sub(list_pattern, replace_list, text, flags=re.DOTALL)
+            
+            # 依次处理模板语法
+            result = process_if_statements(content)
+            result = process_list_statements(result)
+            # 多次处理变量替换，确保嵌套变量也被处理
+            for _ in range(3):  # 最多3轮替换
+                new_result = self._replace_template_variables(result, project_config)
+                if new_result == result:  # 没有更多变量需要替换
+                    break
+                result = new_result
+            
+            return result
+            
+        except Exception as e:
+            print(f"    ⚠️  FTL 处理出错: {e}")
+            # 如果 FTL 处理失败，至少处理基本变量替换
+            return self._replace_template_variables(content, project_config)
+    
+    def _evaluate_condition(self, condition: str, project_config: Dict) -> bool:
+        """评估 FTL 条件表达式"""
+        try:
+            # 简化的条件评估器
+            condition = condition.strip()
+            
+            # 处理 featureFlags.xxx.enabled 这样的条件
+            if '.enabled' in condition:
+                path = condition.replace('.enabled', '')
+                value = self._get_nested_value(project_config, path)
+                if isinstance(value, dict) and 'enabled' in value:
+                    return bool(value['enabled'])
+                return False
+            
+            # 处理直接的布尔值路径
+            value = self._get_nested_value(project_config, condition)
+            return bool(value)
+            
+        except:
+            return False
+    
+    def _get_nested_value(self, data: Dict, path: str):
+        """获取嵌套字典中的值"""
+        try:
+            parts = path.split('.')
+            current = data
+            for part in parts:
+                current = current[part]
+            return current
+        except (KeyError, TypeError):
+            return None
     
     def _refactor_package_names(self, output_path: Path, project_config: Dict):
         """执行全局包名重构"""
