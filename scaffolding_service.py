@@ -195,16 +195,25 @@ class ScaffoldingService:
     
     def _process_templates(self, output_path: Path, project_config: Dict):
         """处理 FTL 模板文件"""
-        templates = [
+        # 原有的配置模板
+        config_templates = [
             output_path / "pom.xml.ftl",
             output_path / "ruoyi-admin" / "src" / "main" / "resources" / "application.yml.ftl",
             output_path / "ruoyi-modules" / "ruoyi-generator" / "src" / "main" / "resources" / "generator.yml.ftl"
         ]
         
-        # 查找所有 .ftl 文件
+        # 查找所有 .ftl 文件（包括Java配置类模板）
+        all_templates = []
         for ftl_file in output_path.rglob("*.ftl"):
-            if ftl_file not in templates:
-                templates.append(ftl_file)
+            all_templates.append(ftl_file)
+        
+        # 合并模板列表
+        templates = config_templates + [t for t in all_templates if t not in config_templates]
+        
+        print(f"🔧 发现 {len(templates)} 个FTL模板文件:")
+        for template in templates:
+            relative_path = template.relative_to(output_path)
+            print(f"    📄 {relative_path}")
         
         for template_path in templates:
             if template_path.exists():
