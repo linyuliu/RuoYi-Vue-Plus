@@ -8,15 +8,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
-<#if featureFlags.sse.enabled>
 /**
  * SSE 自动装配
  *
  * @author ${projectMetadata.author!"Lion Li"}
  */
 @AutoConfiguration
-@ConditionalOnProperty(value = "sse.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "sse.enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(SseProperties.class)
+<#if featureFlags.sse.enabled>
 public class SseAutoConfiguration {
 
     @Bean
@@ -36,5 +36,7 @@ public class SseAutoConfiguration {
 
 }
 <#else>
-// SSE 功能已禁用，此配置类不会被生成
+public class SseAutoConfiguration {
+    // SSE 功能已禁用，配置类保留但为空实现
+}
 </#if>

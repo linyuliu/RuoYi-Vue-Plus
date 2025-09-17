@@ -363,8 +363,12 @@
     <modules>
         <module>ruoyi-admin</module>
         <module>ruoyi-common</module>
+<#if backendConfig.modulesToKeep?seq_contains("ruoyi-extend")>
         <module>ruoyi-extend</module>
+</#if>
+<#if backendConfig.modulesToKeep?seq_contains("ruoyi-modules")>
         <module>ruoyi-modules</module>
+</#if>
     </modules>
     <packaging>pom</packaging>
 
