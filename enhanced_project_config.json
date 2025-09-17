@@ -1,0 +1,136 @@
+{
+  "projectMetadata": {
+    "projectName": "智能管理系统",
+    "groupId": "com.intelligent.admin",
+    "artifactId": "intelligent-admin-server",
+    "version": "1.0.0-SNAPSHOT",
+    "description": "基于RuoYi-Vue-Plus的智能管理系统",
+    "author": "开发团队"
+  },
+  "backendConfig": {
+    "modulesToKeep": [
+      "ruoyi-admin",
+      "ruoyi-common",
+      "ruoyi-system",
+      "ruoyi-generator"
+    ]
+  },
+  "featureFlags": {
+    "sse": {
+      "enabled": true,
+      "path": "/resource/sse"
+    },
+    "websocket": {
+      "enabled": false,
+      "path": "/resource/websocket",
+      "allowedOrigins": "*"
+    },
+    "threadPool": {
+      "enabled": false,
+      "queueCapacity": 128,
+      "keepAliveSeconds": 300
+    },
+    "apiDecrypt": {
+      "enabled": true,
+      "headerFlag": "encrypt-key"
+    },
+    "tenant": {
+      "enabled": true,
+      "excludes": [
+        "sys_menu",
+        "sys_tenant",
+        "sys_tenant_package",
+        "sys_role_dept",
+        "sys_role_menu",
+        "sys_user_post",
+        "sys_user_role",
+        "sys_client",
+        "sys_oss_config"
+      ]
+    },
+    "workflow": {
+      "enabled": false,
+      "ui": true,
+      "tokenName": "Authorization,clientid"
+    },
+    "job": {
+      "enabled": false,
+      "type": "snailjob"
+    },
+    "springDoc": {
+      "enabled": true,
+      "title": "API文档",
+      "description": "系统接口文档"
+    },
+    "xss": {
+      "enabled": true,
+      "excludeUrls": ["/system/notice"]
+    },
+    "captcha": {
+      "enabled": true,
+      "type": "MATH",
+      "category": "CIRCLE"
+    }
+  },
+  "infrastructureConfig": {
+    "database": {
+      "type": "mysql",
+      "host": "localhost",
+      "port": 3306,
+      "username": "intelligent_user",
+      "password": "intelligent_2024",
+      "databaseName": "intelligent_admin_db"
+    },
+    "redis": {
+      "host": "localhost",
+      "port": 6379,
+      "password": "redis_2024",
+      "database": 1
+    }
+  },
+  "customEntities": [
+    {
+      "tableName": "sys_notification",
+      "className": "Notification",
+      "comment": "系统通知表",
+      "fields": [
+        {
+          "name": "id",
+          "type": "Long",
+          "primaryKey": true,
+          "comment": "通知ID"
+        },
+        {
+          "name": "title",
+          "type": "String",
+          "length": 200,
+          "nullable": false,
+          "comment": "通知标题"
+        },
+        {
+          "name": "content",
+          "type": "String",
+          "length": 2000,
+          "comment": "通知内容"
+        },
+        {
+          "name": "type",
+          "type": "Integer",
+          "nullable": false,
+          "comment": "通知类型(1=系统通知 2=个人消息)"
+        },
+        {
+          "name": "target_user_id",
+          "type": "Long",
+          "comment": "目标用户ID"
+        },
+        {
+          "name": "read_status",
+          "type": "Integer",
+          "nullable": false,
+          "comment": "阅读状态(0=未读 1=已读)"
+        }
+      ]
+    }
+  ]
+}
