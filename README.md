@@ -29,6 +29,16 @@
 
 > 文档地址: [plus-doc](https://plus-doc.dromara.org) 文档在华为云上如果打不开大概率是DNS问题 可以尝试切换网络等方式(或者科学上网)
 
+## 🎯 项目文档导航
+
+| 文档类型 | 文件名 | 说明 |
+|---------|--------|------|
+| **🚀 详细实现指南** | [DETAILED_README.md](./DETAILED_README.md) | **完整的架构体系、实现逻辑、开发计划与时间评估** |
+| 🔧 脚手架生成系统 | [SCAFFOLDING_README.md](./SCAFFOLDING_README.md) | FTL 模板转换、SQL 生成、服务编排 |
+| 🧩 模块化系统 | [MODULAR_SYSTEM_GUIDE.md](./MODULAR_SYSTEM_GUIDE.md) | 功能开关、条件配置、智能依赖管理 |
+| 📝 FTL 模板指南 | [FTL_TEMPLATE_GUIDE.md](./FTL_TEMPLATE_GUIDE.md) | FreeMarker 模板详细使用说明 |
+| 📖 基础 README | [README.md](./README.md) | 项目介绍、功能对比、快速开始 |
+
 ## 赞助商
 
 MaxKey 业界领先单点登录产品 - https://gitee.com/dromara/MaxKey <br>
@@ -118,10 +128,14 @@ Mall4J 高质量Java商城系统 - https://www.mall4j.com/cn/?statId=11 <br>
 | 缓存监控   | 对系统的缓存信息查询，命令统计等。                                                    | 支持  | 支持               |
 | 使用案例   | 系统的一些功能案例                                                            | 支持  | 不支持              |
 
-## 参考文档
+## 📖 详细文档
 
+### 🚀 快速开始文档
 使用框架前请仔细阅读文档重点注意事项
-<br>
+
+>[🎯 **项目详细实现指南 - 重点推荐**](./DETAILED_README.md)
+>>本项目的详细架构体系、实现逻辑、开发计划与时间评估
+>
 >[初始化项目 必看](https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/init)
 >>[https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/init](https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/init)
 >
@@ -130,7 +144,18 @@ Mall4J 高质量Java商城系统 - https://www.mall4j.com/cn/?statId=11 <br>
 >
 >[部署项目 必看](https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/deploy)
 >>[https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/deploy](https://plus-doc.dromara.org/#/ruoyi-vue-plus/quickstart/deploy)
+
+### 🔧 脚手架与开发工具
+>[脚手架生成系统](./SCAFFOLDING_README.md)
+>>基于 FTL 和 JSON 的后端脚手架生成服务
 >
+>[模块化系统指南](./MODULAR_SYSTEM_GUIDE.md)
+>>完整的模块化 FTL 模板系统实现
+>
+>[FTL 模板指南](./FTL_TEMPLATE_GUIDE.md)
+>>FreeMarker 模板处理详细说明
+
+### 🌐 社区与支持
 >[如何加群](https://plus-doc.dromara.org/#/common/add_group)
 >>[https://plus-doc.dromara.org/#/common/add_group](https://plus-doc.dromara.org/#/common/add_group)
 >
